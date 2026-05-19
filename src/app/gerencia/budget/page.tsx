@@ -167,7 +167,7 @@ export default function BudgetPage() {
                       tickFormatter={v => `S/${(v/1000).toFixed(0)}k`} />
                     <Tooltip
                       contentStyle={{ backgroundColor: "var(--color-surface)", borderColor: "var(--color-border)", borderRadius: "8px" }}
-                      formatter={(v: number) => [fmtCurrency(v), "Monto aprobado"]}
+                      formatter={(v) => [fmtCurrency(Number(v ?? 0)), "Monto aprobado"]}
                     />
                     <Bar dataKey="value" name="Monto" radius={[4, 4, 0, 0]} maxBarSize={60} fill="#10b981" />
                   </BarChart>

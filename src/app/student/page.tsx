@@ -59,7 +59,7 @@ export default function StudentDashboardPage() {
       const uniqueCourseIds = Array.from(new Set(
         paid.flatMap((o: any) => (o.orderLineItemsList ?? []).map((i: any) => i.idCurso))
       )) as string[];
-      setCompletedCount(uniqueCourseIds.size);
+      setCompletedCount(uniqueCourseIds.length);
 
       // 1 request bulk para todos los cursos; fallback a fetch individual si el endpoint no está activo
       let courseDetails: any[] = [];
