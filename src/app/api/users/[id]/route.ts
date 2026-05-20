@@ -37,7 +37,7 @@ export const PUT = auth(async (req) => {
 
   try {
     const body = await req.json();
-    const res = await fetch(`${process.env.API_URL}/api/v1/users/${id}`, {
+    const res = await fetch(`${process.env.API_URL}/api/v1/users/admin/${id}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
