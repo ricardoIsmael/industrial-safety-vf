@@ -149,6 +149,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                                 password: "oauth_user_password",
                                 role: primaryRole,
                                 keycloakId: resolvedKeycloakId,
+                                mustChangePassword: true,
                             })
                         });
                     } catch (err) {
@@ -163,6 +164,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     dbId = dbUser.id;
                     if (dbUser.keycloakId) resolvedKeycloakId = dbUser.keycloakId;
                     token.dbName = [dbUser.name, dbUser.lastName].filter(Boolean).join(" ");
+                    mustChangePassword = dbUser.mustChangePassword === true;
                     if (res.status === 201) {
                         isNewUser = true;
                         newUserEmail = user.email ?? undefined;
