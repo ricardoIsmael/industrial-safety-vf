@@ -90,7 +90,7 @@ export default function JefeProfilePage() {
         urlPhoto: photoUrl,
       };
 
-      const res = await fetch(`/api/proxy/users/${session.dbId}`, {
+      const res = await fetch(`/api/proxy/users/admin/${session.dbId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
