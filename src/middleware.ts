@@ -10,6 +10,7 @@ export default auth((req) => {
     pathname === "/" ||
     pathname === "/select-role" ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/proxy/course") ||
     pathname.startsWith("/auth/") ||
     pathname.startsWith("/cursos") ||
     pathname.startsWith("/register");
