@@ -67,23 +67,47 @@ export default function AdminSupportPage() {
   const loadUsers = async () => {
     setLoadingUsers(true);
     try {
-      const res = await fetch("/api/proxy/users");
-      if (!res.ok) return;
-      const data: any[] = await res.json();
+      const [usersRes, convsRes] = await Promise.all([
+        fetch("/api/proxy/users"),
+        fetch("/api/proxy/chat/conversations/support"),
+      ]);
+
+      if (!usersRes.ok) return;
+      const data: any[] = await usersRes.json();
+
+      // Mapa keycloakId → conversación existente
+      const convMap: Record<string, any> = {};
+      if (convsRes.ok) {
+        const convs: any[] = await convsRes.json();
+        convs.forEach(c => { convMap[c.studentId] = c; });
+      }
+
       const filtered = data
         .filter(u => u.keycloakId && !u.role?.toUpperCase().includes('ADMINISTRADOR'))
-        .map(u => ({
-          id: u.id,
-          keycloakId: u.keycloakId,
-          name: u.name || "",
-          lastName: u.lastName || "",
-          email: u.email || "",
-          role: u.role || "",
-          conversationId: null,
-          lastMsg: "Sin mensajes aún",
-          lastMessageAt: null,
-          unread: 0,
-        }));
+        .map(u => {
+          const conv = convMap[u.keycloakId];
+          return {
+            id: u.id,
+            keycloakId: u.keycloakId,
+            name: u.name || "",
+            lastName: u.lastName || "",
+            email: u.email || "",
+            role: u.role || "",
+            conversationId: conv?.id ?? null,
+            lastMsg: conv?.lastMessagePreview || "Sin mensajes aún",
+            lastMessageAt: conv?.lastMessageAt ?? null,
+            unread: conv?.unreadForOtherParty ?? 0,
+          };
+        });
+
+      // Ordenar: primero los que tienen mensajes recientes
+      filtered.sort((a, b) => {
+        if (!a.lastMessageAt && !b.lastMessageAt) return 0;
+        if (!a.lastMessageAt) return 1;
+        if (!b.lastMessageAt) return -1;
+        return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
+      });
+
       setUsers(filtered);
     } catch (e) {
       console.error("Error cargando usuarios:", e);
@@ -256,8 +280,15 @@ export default function AdminSupportPage() {
                     <span className="text-[10px] text-muted whitespace-nowrap shrink-0">{formatTime(user.lastMessageAt)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs text-muted truncate">{user.lastMsg}</p>
-                    <Badge variant="outline" className="text-[9px] shrink-0 px-1.5 py-0">{getRoleLabel(user.role)}</Badge>
+                    <p className={cn("text-xs truncate", user.unread > 0 ? "text-foreground font-medium" : "text-muted")}>{user.lastMsg}</p>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {user.unread > 0 && (
+                        <span className="h-4 w-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground flex items-center justify-center">
+                          {user.unread > 9 ? "9+" : user.unread}
+                        </span>
+                      )}
+                      <Badge variant="outline" className="text-[9px] px-1.5 py-0">{getRoleLabel(user.role)}</Badge>
+                    </div>
                   </div>
                 </div>
               </button>
