@@ -29,15 +29,18 @@ function buildTargetUrl(req: NextRequest, path: string) {
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-    const session = await getSession()
-    if (invalidSession(session)) return NextResponse.json({ error: "No session" }, { status: 401 })
+    const resolvedParamsGet = await params
+    const pathGet = resolvedParamsGet.path.join("/")
+    // Rutas públicas que no requieren sesión
+    const isPublicGet = pathGet === "course" || pathGet.startsWith("course/")
+    const session = isPublicGet ? null : await getSession()
+    if (!isPublicGet && invalidSession(session)) return NextResponse.json({ error: "No session" }, { status: 401 })
 
-    const resolvedParams = await params
-    const path = resolvedParams.path.join("/")
-    const targetUrl = buildTargetUrl(req, path)
+    const targetUrl = buildTargetUrl(req, pathGet)
 
-    const getHeaders: Record<string, string> = {
-        "Authorization": `Bearer ${(session as any).accessToken}`
+    const getHeaders: Record<string, string> = {}
+    if (session && (session as any).accessToken) {
+        getHeaders["Authorization"] = `Bearer ${(session as any).accessToken}`
     }
     const getUserId = req.headers.get("x-user-id")
     if (getUserId) getHeaders["X-User-Id"] = getUserId
