@@ -148,7 +148,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                                 email: user.email,
                                 password: "oauth_user_password",
                                 role: primaryRole,
-                                // No enviamos keycloakId: el backend detecta 409 y llama assignRole()
+                                keycloakId: resolvedKeycloakId,
                             })
                         });
                     } catch (err) {
@@ -193,7 +193,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                                 email: user.email,
                                 password: "oauth_user_password",
                                 role: primaryRole,
-                                // No enviamos keycloakId: el backend detecta 409 en Keycloak y llama assignRole()
+                                keycloakId: resolvedKeycloakId,
                             };
                             console.log("DEBUG [Auth]: Registrando en DB con datos:", JSON.stringify(regBody));
                             const regRes = await fetch(`${process.env.API_URL}/api/v1/users/register`, {

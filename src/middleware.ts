@@ -52,6 +52,16 @@ export default auth((req) => {
     else if (isTrabajador) targetDashboard = "/trabajador";
     else if (isInstructor) targetDashboard = "/instructor";
 
+    const mustChangePassword = (req.auth as any)?.mustChangePassword === true;
+
+    // Forzar cambio de contraseña antes de cualquier otra redirección
+    if (mustChangePassword && !pathname.startsWith("/auth/set-password") && !pathname.startsWith("/api/")) {
+      const email = (req.auth as any)?.user?.email ?? "";
+      return NextResponse.redirect(
+        new URL(`/auth/set-password?email=${encodeURIComponent(email)}`, req.nextUrl)
+      );
+    }
+
     // Ya logueado: redirigir fuera de login / root
     if (pathname === "/login" || pathname === "/register" || pathname === "/") {
       return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));
