@@ -1,12 +1,18 @@
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LandingNav from "@/components/layout/landing-nav";
-import CameraMockup from "@/components/layout/camera-mockup";
-import SafetyCycle from "@/components/layout/safety-cycle";
 import { PersonalizedHero } from "@/components/layout/personalized-hero";
+
+const CameraMockup = dynamic(() => import("@/components/layout/camera-mockup"), {
+  loading: () => <div className="aspect-video w-full rounded-xl bg-surface animate-pulse" />,
+});
+const SafetyCycle = dynamic(() => import("@/components/layout/safety-cycle"));
 import {
   ShieldCheck,
   Award,
@@ -113,14 +119,11 @@ const keyCapabilities = [
   { icon: LayoutDashboard, text: "Panel de control gerencial." },
 ];
 
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-
 export default async function LandingPage() {
   const session = await auth();
 
   // Redirección automática para administradores
-  const roles = (session as any)?.roles || [];
+  const roles = session?.roles ?? [];
   if (roles.includes("ROLE_ADMINISTRADOR") || roles.includes("ADMINISTRADOR")) {
     redirect("/select-role");
   }
@@ -136,7 +139,7 @@ export default async function LandingPage() {
         <div className="absolute -top-20 h-[600px] w-[600px] rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-transparent blur-[120px] animate-pulse" />
         <div className="absolute top-1/2 left-1/4 h-[300px] w-[300px] rounded-full bg-gradient-to-r from-success/5 to-primary/5 blur-[80px] animate-pulse delay-1000" />
 
-        <PersonalizedHero />
+        <PersonalizedHero session={session} />
 
         {/* Trust indicators */}
         <div className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-muted">
@@ -225,10 +228,11 @@ export default async function LandingPage() {
                 </ul>
 
                 <div className="mt-8">
-                  <Link href="/login" className="block">
-                    <button className="flex h-12 w-full items-center justify-center rounded-lg bg-amber-500 px-6 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-600">
-                      SOLICITAR DEMOSTRACIÓN
-                    </button>
+                  <Link
+                    href="/login"
+                    className="flex h-12 w-full items-center justify-center rounded-lg bg-amber-500 px-6 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-600"
+                  >
+                    SOLICITAR DEMOSTRACIÓN
                   </Link>
                 </div>
               </div>
@@ -257,7 +261,12 @@ export default async function LandingPage() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {courses.map((course, index) => (
-              <Link href={`/cursos/${course.id}`} key={index} className="block group">
+              <Link
+                href={`/cursos/${course.id}`}
+                key={index}
+                className="block group animate-in fade-in slide-in-from-bottom-4 duration-500 [animation-fill-mode:both]"
+                style={{ animationDelay: `${index * 120}ms` }}
+              >
                 <Card
                   className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-800/50 bg-surface transition-all duration-300 hover:-translate-y-2 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/20"
                 >
@@ -308,9 +317,9 @@ export default async function LandingPage() {
                     {/* Rating */}
                     <div className="mt-3 flex items-center gap-2">
                       <span className="text-sm font-bold text-amber-400">{course.rating}</span>
-                      <div className="flex items-center text-amber-400">
+                      <div role="img" aria-label={`Calificación: ${course.rating} de 5`} className="flex items-center text-amber-400">
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className={`h-4 w-4 ${star <= Math.floor(course.rating) ? 'fill-current' : 'text-slate-600'}`} />
+                          <Star key={star} aria-hidden="true" className={`h-4 w-4 ${star <= Math.floor(course.rating) ? 'fill-current' : 'text-slate-600'}`} />
                         ))}
                       </div>
                       <span className="text-xs text-slate-500">({course.reviews})</span>
@@ -431,17 +440,17 @@ export default async function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 border-t border-slate-700/50 pt-12">
+          <div className="mt-16 grid grid-cols-3 gap-4 sm:gap-8 border-t border-slate-700/50 pt-12">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">500+</div>
+              <div className="text-2xl sm:text-3xl font-bold text-primary">500+</div>
               <div className="text-sm text-muted">Empresas activas</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-success">99.9%</div>
+              <div className="text-2xl sm:text-3xl font-bold text-success">99.9%</div>
               <div className="text-sm text-muted">Disponibilidad</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-warning">24/7</div>
+              <div className="text-2xl sm:text-3xl font-bold text-warning">24/7</div>
               <div className="text-sm text-muted">Monitoreo continuo</div>
             </div>
           </div>

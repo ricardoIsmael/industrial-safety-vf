@@ -2,7 +2,8 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
 // Usamos el wrapper auth() para asegurar que la sesión se capture correctamente en la API Route
-export const GET = auth(async (req) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const GET = auth(async (req: any) => {
   const session = req.auth;
   console.log("DEBUG: Session keys:", session ? Object.keys(session) : "No session");
   console.log("DEBUG: Access Token present?:", !!session?.accessToken);

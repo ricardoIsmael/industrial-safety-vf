@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Shield, User, LayoutDashboard, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { Shield, User, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { CartDropdown } from "@/components/layout/cart-dropdown";
-import { cn } from "@/lib/utils";
+import { cn, getRoleDisplayName } from "@/lib/utils";
+import type { Session } from "next-auth";
 
-export default function LandingNav({ variant = "floating", session }: { variant?: "floating" | "full", session?: any }) {
+export default function LandingNav({ variant = "floating", session }: { variant?: "floating" | "full"; session?: Session | null }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [customAvatar, setCustomAvatar] = useState<string | null>(null);
 
   // Leemos foto personalizada subida a S3 (si existe)
@@ -17,27 +19,24 @@ export default function LandingNav({ variant = "floating", session }: { variant?
     setCustomAvatar(localStorage.getItem("custom_avatar"));
   }, []);
 
-  // Extraer información del usuario desde la sesión de NextAuth
-  let user = null;
-  if (session?.user) {
-    let role = "Estudiante"; // Rol por defecto
-    if (session.accessToken) {
-      try {
-        const payloadBase64 = session.accessToken.split(".")[1];
-        const payload = JSON.parse(atob(payloadBase64));
-        const roles = payload.realm_access?.roles || [];
-        if (roles.includes("ROLE_ADMINISTRADOR") || roles.includes("ADMINISTRADOR")) role = "Administrador";
-        else if (roles.includes("ROLE_GERENCIA") || roles.includes("ROLE_GERENCIA_GENERAL")) role = "Gerente General";
-        else if (roles.includes("ROLE_JEFE_SEGURIDAD")) role = "Jefe de Seguridad";
-      } catch (e) {
-        console.error("Error decodificando JWT en navbar", e);
-      }
-    }
-    user = {
-      name: session.user.name || "Usuario",
-      role: role
-    };
-  }
+  useEffect(() => {
+    if (!isProfileOpen) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsProfileOpen(false); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isProfileOpen]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setIsMobileMenuOpen(false); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isMobileMenuOpen]);
+
+  const currentRole = getRoleDisplayName((session as any)?.roles ?? []) || "Estudiante";
+  const user = session?.user
+    ? { name: session.user.name || "Usuario", role: currentRole }
+    : null;
 
   const getDashboardLink = (role: string) => {
     switch (role) {
@@ -112,11 +111,13 @@ export default function LandingNav({ variant = "floating", session }: { variant?
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 border border-slate-700 overflow-hidden" title={user.name}>
                   {(customAvatar || session?.user?.image) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={customAvatar || session.user.image}
+                    <Image
+                      src={customAvatar || session?.user?.image || ""}
                       alt={user.name}
+                      width={36}
+                      height={36}
                       className="h-full w-full object-cover"
+                      unoptimized
                     />
                   ) : (
                     <User className="h-4 w-4 text-primary" />
@@ -162,8 +163,73 @@ export default function LandingNav({ variant = "floating", session }: { variant?
               </Button>
             </Link>
           )}
+
+          {/* Hamburger — solo móvil */}
+          <button
+            aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg text-muted hover:text-foreground hover:bg-slate-800/50 transition-colors"
+          >
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
+
+      {/* Panel de navegación móvil */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop para cerrar al tocar fuera */}
+          <div
+            className="fixed inset-0 z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <nav
+            id="mobile-nav"
+            aria-label="Menú de navegación móvil"
+            className="md:hidden absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl border border-slate-800 bg-background/95 backdrop-blur-md shadow-2xl shadow-black/50 p-3 flex flex-col gap-1"
+          >
+            <a
+              href="/#demo"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-muted hover:text-foreground hover:bg-slate-800/50 transition-colors"
+            >
+              Demostración
+            </a>
+            <Link
+              href="/cursos"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-muted hover:text-foreground hover:bg-slate-800/50 transition-colors"
+            >
+              Cursos
+            </Link>
+            <a
+              href="/#certifications"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-muted hover:text-foreground hover:bg-slate-800/50 transition-colors"
+            >
+              Certificaciones
+            </a>
+            <a
+              href="/#contact"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-muted hover:text-foreground hover:bg-slate-800/50 transition-colors"
+            >
+              Contacto
+            </a>
+            {!user && (
+              <div className="mt-2 border-t border-slate-800 pt-2">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button variant="primary" className="w-full rounded-xl">
+                    Acceder
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </nav>
+        </>
+      )}
     </header>
   );
 }

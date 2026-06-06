@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-export const GET = auth(async (req) => {
+export const GET = auth(async (req: any) => {
   const session = req.auth;
   if (!session?.accessToken) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
@@ -28,7 +28,7 @@ export const GET = auth(async (req) => {
   }
 });
 
-export const PUT = auth(async (req) => {
+export const PUT = auth(async (req: any) => {
   const session = req.auth;
   if (!session?.accessToken) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 

@@ -1,37 +1,6 @@
 import NextAuth from "next-auth"
 import Keycloak from "next-auth/providers/keycloak"
 import type { JWT } from "next-auth/jwt"
-
-declare module "next-auth" {
-    interface Session {
-        accessToken?: string;
-        refreshToken?: string;
-        idToken?: string;
-        dbId?: string | number;
-        keycloakId?: string;
-        roles?: string[];
-        isNewUser?: boolean;
-        newUserEmail?: string;
-        mustChangePassword?: boolean;
-    }
-}
-
-declare module "next-auth/jwt" {
-    interface JWT {
-        accessToken?: string;
-        idToken?: string;
-        dbId?: string | number;
-        keycloakId?: string;
-        dbName?: string;
-        roles?: string[];
-        expiresAt?: number;
-        isNewUser?: boolean;
-        newUserEmail?: string;
-        provider?: string;
-        mustChangePassword?: boolean;
-    }
-}
-
 import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
