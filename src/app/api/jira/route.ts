@@ -45,7 +45,11 @@ export async function GET(req: NextRequest) {
             `${BASE}/rest/api/3/search/jql?jql=${jql}&maxResults=100&fields=summary,status,priority,created,issuetype,labels,description`,
             { headers: { Authorization: authHeader(), Accept: "application/json" } }
         )
-        if (!res.ok) return NextResponse.json({ error: "Jira error", issues: [] }, { status: res.status })
+        if (!res.ok) {
+            const detail = await res.text().catch(() => "")
+            console.error("[api/jira GET] Jira respondió", res.status, "project=", project, detail)
+            return NextResponse.json({ error: "Jira error", status: res.status, project, detail, issues: [] }, { status: res.status })
+        }
         const data = await res.json()
         const issues = (data.issues || []).map((i: any) => ({
             key: i.key,
