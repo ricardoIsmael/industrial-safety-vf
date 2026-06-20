@@ -17,7 +17,9 @@ import {
   LogOut,
   Menu,
   X,
-  FileText
+  FileText,
+  UserCog,
+  GitBranch
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +33,8 @@ const gerenciaNavItems = [
   { href: "/gerencia/compliance", label: "Cumplimiento", icon: ShieldCheck },
   { href: "/gerencia/budget", label: "Inversión HSEQ", icon: Briefcase },
   { href: "/gerencia/requests", label: "Solicitudes", icon: FileText },
+  { href: "/gerencia/accesos", label: "Accesos / Ascensos", icon: UserCog },
+  { href: "/gerencia/cambios", label: "Control de Cambios", icon: GitBranch },
   { href: "/gerencia/reports", label: "Reportes", icon: FileBarChart },
   { href: "/gerencia/profile", label: "Mi Perfil", icon: User },
 ];

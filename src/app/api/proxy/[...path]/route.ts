@@ -129,13 +129,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ path
         body = await req.json()
     } catch (e) {}
 
+    const putHeaders: Record<string, string> = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${(session as any).accessToken}`
+    }
+    const putUserId = req.headers.get("x-user-id")
+    if (putUserId) putHeaders["X-User-Id"] = putUserId
+
     try {
         const response = await fetch(targetUrl, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${(session as any).accessToken}`
-            },
+            headers: putHeaders,
             body: JSON.stringify(body)
         })
         const data = await safeJson(response)
