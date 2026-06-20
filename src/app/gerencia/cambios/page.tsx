@@ -53,7 +53,7 @@ export default function ControlCambiosPage() {
 
   const load = () => {
     setLoading(true);
-    fetch("/api/jira?project=CDC")
+    fetch("/api/jira?project=CON")
       .then((r) => r.json())
       .then((d) => setIssues(Array.isArray(d.issues) ? d.issues : []))
       .catch(() => setIssues([]))
@@ -103,7 +103,7 @@ export default function ControlCambiosPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          project: "CDC",
+          project: "CON",
           summary: form.titulo,
           description: descripcion,
           labels: [`Cambio-${form.tipo}`, form.categoria, `Prioridad-${form.prioridad}`],
@@ -141,7 +141,7 @@ export default function ControlCambiosPage() {
         <div>
           <p className="text-xs tracking-widest text-primary/70 mb-1">DIRECCIÓN · CONTROL DE CAMBIOS</p>
           <h1 className="text-3xl font-bold tracking-tight">Nuevo plan de cambio</h1>
-          <p className="text-muted">Completa el formulario del plan de control de cambios (se registra en Jira · CDC).</p>
+          <p className="text-muted">Completa el formulario del plan de control de cambios (se registra en Jira · CON).</p>
         </div>
 
         <Card className="bg-surface/60 border-border">
