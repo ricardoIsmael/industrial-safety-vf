@@ -34,7 +34,7 @@ export default function ReportsPage() {
 
   const loadJira = () => {
     setLoadingJira(true);
-    fetch("/api/jira?project=GDD")
+    fetch("/api/jira?project=GDI")
       .then((r) => r.json())
       .then((d) => setIssues(Array.isArray(d.issues) ? d.issues : []))
       .catch(() => setIssues([]))
@@ -54,7 +54,7 @@ export default function ReportsPage() {
       if (!res.ok) throw new Error();
       const data: Stats = await res.json();
       setStats(data);
-      toast.success("Reporte generado — traza registrada en Jira (GDD)");
+      toast.success("Reporte generado — traza registrada en Jira (GDI)");
       setTimeout(loadJira, 1500); // el ticket de info tarda un instante en aparecer
     } catch {
       toast.error("No se pudo generar el reporte");
@@ -81,7 +81,7 @@ export default function ReportsPage() {
             <FileBarChart className="h-8 w-8 text-emerald-500" /> Reportes Gerenciales
           </h1>
           <p className="text-muted">
-            Genera el reporte ejecutivo de compras. Cada generación deja traza ITIL (Gestión de Información) en Jira · GDD.
+            Genera el reporte ejecutivo de compras. Cada generación deja traza ITIL (Gestión de Información) en Jira · GDI.
           </p>
         </div>
         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" disabled={generating} onClick={generarReporte}>
@@ -107,11 +107,11 @@ export default function ReportsPage() {
         </Card>
       )}
 
-      {/* Trazabilidad en Jira (GDD) */}
+      {/* Trazabilidad en Jira (GDI) */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-400" /> Trazabilidad en Jira — Gestión de Información (GDD)
+            <FileText className="h-5 w-5 text-blue-400" /> Trazabilidad en Jira — Gestión de Información (GDI)
           </h2>
           <Button variant="outline" size="sm" className="border-border" onClick={loadJira} disabled={loadingJira}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loadingJira ? "animate-spin" : ""}`} /> Actualizar

@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     const project: string = (body.project || "CDC").replace(/[^A-Za-z0-9]/g, "")
     const summary: string = body.summary
     const description: string = body.description || ""
-    const issueType: string = body.issueType || "Task"
+    const issueType: string = body.issueType || "Tarea"
     const labels: string[] = Array.isArray(body.labels) ? body.labels.map(sanitizeLabel).filter(Boolean) : []
 
     if (!summary) return NextResponse.json({ error: "summary requerido" }, { status: 400 })
