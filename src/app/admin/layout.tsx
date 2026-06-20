@@ -38,7 +38,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+    <div className="h-screen bg-background flex flex-col md:flex-row overflow-hidden">
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-surface/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export default function AdminLayout({
 
       {/* Sidebar Navigation */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0",
+        "fixed inset-y-0 left-0 z-40 w-64 bg-surface border-r border-border flex flex-col transform transition-transform duration-300 md:relative md:translate-x-0 md:h-full",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Brand */}
@@ -115,7 +115,7 @@ export default function AdminLayout({
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
