@@ -31,9 +31,9 @@ function buildTargetUrl(req: NextRequest, path: string) {
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
     const resolvedParamsGet = await params
     const pathGet = resolvedParamsGet.path.join("/")
-    // Rutas públicas que no requieren sesión
+    // Rutas públicas que no requieren sesión (pero si hay sesión, igual se adjunta el token)
     const isPublicGet = pathGet === "course" || pathGet.startsWith("course/")
-    const session = isPublicGet ? null : await getSession()
+    const session = await getSession()
     if (!isPublicGet && invalidSession(session)) return NextResponse.json({ error: "No session" }, { status: 401 })
 
     const targetUrl = buildTargetUrl(req, pathGet)
