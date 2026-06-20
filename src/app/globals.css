@@ -48,6 +48,15 @@ body {
   background-size: 200% 200%;
 }
 
+@keyframes scan {
+  from { top: 0%; }
+  to   { top: 100%; }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
 
 
 /* Custom scrollbar */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import {
   GraduationCap,
@@ -535,35 +536,44 @@ export default function SafetyCycle() {
         </div>
 
         {/* ─── Content area ───────────────────────────────────── */}
-        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
-          {/* Left: text */}
-          <div className="flex flex-col justify-center">
-            <div className="mb-2 inline-flex items-center gap-2">
-              <activeData.icon className="h-5 w-5 text-primary" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                {activeData.label}
-              </span>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -12 }}
+            transition={{ duration: 0.22, ease: "easeInOut" }}
+            className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2"
+          >
+            {/* Left: text */}
+            <div className="flex flex-col justify-center">
+              <div className="mb-2 inline-flex items-center gap-2">
+                <activeData.icon className="h-5 w-5 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                  {activeData.label}
+                </span>
+              </div>
+              <h3 className="mb-3 text-2xl font-bold text-foreground">{activeData.title}</h3>
+              <p className="mb-6 text-base text-muted">{activeData.description}</p>
+
+              <ul className="space-y-3">
+                {activeData.bullets.map((bullet) => (
+                  <li key={bullet} className="flex items-center gap-3">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Check className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-sm text-slate-300">{bullet}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <h3 className="mb-3 text-2xl font-bold text-foreground">{activeData.title}</h3>
-            <p className="mb-6 text-base text-muted">{activeData.description}</p>
 
-            <ul className="space-y-3">
-              {activeData.bullets.map((bullet) => (
-                <li key={bullet} className="flex items-center gap-3">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Check className="h-3.5 w-3.5" />
-                  </div>
-                  <span className="text-sm text-slate-300">{bullet}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Right: visual */}
-          <div className="rounded-xl border border-slate-800 bg-surface p-4">
-            <ActiveVisual />
-          </div>
-        </div>
+            {/* Right: visual */}
+            <div className="rounded-xl border border-slate-800 bg-surface p-4">
+              <ActiveVisual />
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   );

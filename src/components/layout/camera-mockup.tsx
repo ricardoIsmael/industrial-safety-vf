@@ -24,16 +24,12 @@ const detections: BoundingBox[] = [
 ];
 
 export default function CameraMockup() {
-  const [scanLine, setScanLine] = useState(0);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const interval = setInterval(() => {
-      setScanLine((prev) => (prev + 1) % 100);
-      setCurrentTime(new Date());
-    }, 50);
+    const interval = setInterval(() => setCurrentTime(new Date()), 1_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -122,11 +118,8 @@ export default function CameraMockup() {
           );
         })}
 
-        {/* Scan line */}
-        <div
-          className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
-          style={{ top: `${scanLine}%` }}
-        />
+        {/* Scan line — animated via CSS to avoid 20 re-renders/s */}
+        <div className="animate-scan absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
         {/* Bottom status bar */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950/90 to-transparent px-3 pb-3 pt-12 sm:px-4 sm:pb-4">

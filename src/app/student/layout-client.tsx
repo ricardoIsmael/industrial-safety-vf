@@ -1,5 +1,6 @@
 "use client";
 
+import type { Session } from "next-auth";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -14,12 +15,12 @@ const studentTabs = [
   { href: "/student/profile", label: "Mi Perfil" },
 ];
 
-export default function StudentLayoutClient({ 
-  children, 
-  session 
-}: { 
+export default function StudentLayoutClient({
+  children,
+  session
+}: {
   children: React.ReactNode;
-  session: any;
+  session: Session | null;
 }) {
   const pathname = usePathname();
 

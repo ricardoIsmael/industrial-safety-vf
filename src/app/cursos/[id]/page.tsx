@@ -76,6 +76,26 @@ async function getCourse(id: string): Promise<CourseDetailFromAPI | null> {
   }
 }
 
+interface ReviewFromAPI {
+  id: string;
+  author: string;
+  authorAvatarUrl: string | null;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+async function getReviews(id: string): Promise<ReviewFromAPI[]> {
+  try {
+    const res = await fetch(`${process.env.API_URL}/api/v1/course/${id}/reviews`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.error(`[/cursos/${id}/reviews] Fetch failed:`, err);
+    return [];
+  }
+}
+
 async function checkAlreadyOwned(courseId: string, keycloakId: string, accessToken: string): Promise<boolean> {
   try {
     const res = await fetch(
@@ -95,7 +115,7 @@ async function checkAlreadyOwned(courseId: string, keycloakId: string, accessTok
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [course, session] = await Promise.all([getCourse(id), auth()]);
+  const [course, session, reviews] = await Promise.all([getCourse(id), auth(), getReviews(id)]);
 
   if (!course) notFound();
 
@@ -318,7 +338,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
             <CourseReviews
               courseRating={rating}
               courseReviewCount={reviewCount}
-              instructorName={course.teacher?.name ?? "Instructor"}
+              reviews={reviews}
             />
           </div>
 
