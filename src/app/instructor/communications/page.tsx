@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button";
 
 /* ─── Types ─────────────────────────────────────────── */
 interface ForumPost {
@@ -249,6 +250,11 @@ export default function CommunicationsPage() {
         "w-full md:w-80 lg:w-96 flex-col shrink-0 border-border bg-surface/50 overflow-hidden h-[calc(100vh-14rem)] md:h-full",
         mobileView === "chat" ? "hidden md:flex" : "flex"
       )}>
+        {/* Reportar incidencia a TI */}
+        <div className="p-3 border-b border-border shrink-0">
+          <ReportarIncidenteButton role="INSTRUCTOR" className="w-full" />
+        </div>
+
         {/* Main tabs */}
         <div className="flex border-b border-border bg-surface-secondary/30 shrink-0">
           <button onClick={() => { setActiveTab("students"); setMobileView("list"); }}
