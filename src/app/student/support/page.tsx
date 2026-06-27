@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button";
 
 interface ChatMessage {
   id: string;
@@ -274,6 +275,7 @@ export default function SupportChatPage() {
       )}>
         <div className="p-4 border-b border-border space-y-4">
           <h2 className="text-xl font-bold tracking-tight">Comunicaciones</h2>
+          <ReportarIncidenteButton role="ALUMNO" className="w-full" />
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
             <Input

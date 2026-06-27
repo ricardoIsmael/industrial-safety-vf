@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button";
 
 interface ChatMessage {
   id: string;
@@ -188,6 +189,9 @@ export default function MarketingSupportPage() {
         <div className="p-4 border-b border-border">
           <h2 className="text-xl font-bold tracking-tight">Comunicaciones</h2>
           <p className="text-xs text-muted mt-1">Soporte e instructores de cursos.</p>
+          <div className="mt-3">
+            <ReportarIncidenteButton role="MARKETING" className="w-full" />
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
