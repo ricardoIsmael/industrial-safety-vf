@@ -14,7 +14,7 @@ import {
 import { prioridadClasses } from "@/components/incidencias/reportar-incidente-button";
 import {
     aceptarIncidencia, getAllIncidencias, resolverIncidencia, sincronizarIncidencia,
-    type EstadoIncidencia, type Incidencia,
+    categoriaLabels, type EstadoIncidencia, type Incidencia,
 } from "@/services/incidenciaService";
 
 const estadoMeta: Record<string, { label: string; cls: string }> = {
@@ -146,12 +146,15 @@ export default function AdminIncidenciasPage() {
                                         <Badge variant="outline" className={cn("border", estadoMeta[inc.estado]?.cls)}>
                                             {estadoMeta[inc.estado]?.label ?? inc.estado}
                                         </Badge>
+                                        <Badge variant="outline" className="border border-border text-muted">
+                                            {categoriaLabels[inc.categoria] ?? inc.categoria}
+                                        </Badge>
                                         <span className="text-xs text-muted">{inc.codigo}</span>
                                     </div>
                                     <h3 className="font-bold">{inc.titulo}</h3>
                                     <p className="text-sm text-muted line-clamp-2">{inc.descripcion}</p>
                                     <p className="text-xs text-muted">
-                                        {inc.categoria} · {inc.tipo} · reportado por {inc.reporterName ?? "—"}
+                                        {inc.tipo} · reportado por {inc.reporterName ?? "—"}
                                         {inc.reporterRole ? ` (${inc.reporterRole})` : ""}
                                     </p>
                                     {(inc.evidenciaUrls?.length ?? 0) > 0 && (

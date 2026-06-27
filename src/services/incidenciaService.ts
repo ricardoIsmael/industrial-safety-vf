@@ -9,9 +9,21 @@ export type Categoria =
     | "BASE_DATOS"
     | "REDES_COMUNICACIONES"
     | "SEGURIDAD"
+    | "DOCUMENTACION"
     | "OTROS";
 export type EstadoIncidencia = "REGISTRADO" | "EN_ATENCION" | "RESUELTO" | "CERRADO";
 export type SyncEstado = "NO_SINCRONIZADO" | "PENDIENTE" | "SINCRONIZADO" | "ERROR";
+
+/** Etiquetas legibles para la clasificación ITIL de la incidencia. */
+export const categoriaLabels: Record<Categoria, string> = {
+    INFRAESTRUCTURA: "Infraestructura",
+    APLICACIONES: "Aplicaciones",
+    BASE_DATOS: "Base de datos",
+    REDES_COMUNICACIONES: "Redes y comunicaciones",
+    SEGURIDAD: "Seguridad",
+    DOCUMENTACION: "Documentación",
+    OTROS: "Otros",
+};
 
 export interface Incidencia {
     id: number;

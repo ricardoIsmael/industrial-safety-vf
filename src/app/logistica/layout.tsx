@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Truck, FileText, BarChart3, LogOut, ClipboardList } from "lucide-react";
+import { Truck, FileText, BarChart3, LogOut, ClipboardList, Headphones } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function LogisticaLayout({ children }: { children: React.ReactNode }) {
@@ -43,6 +43,9 @@ export default function LogisticaLayout({ children }: { children: React.ReactNod
             </Link>
             <Link href="/logistica/aprobaciones" className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname.includes("/aprobaciones") ? 'bg-rose-500/10 text-rose-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
               <ClipboardList className="h-4 w-4" /> Estado de Solicitudes
+            </Link>
+            <Link href="/logistica/support" className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname.includes("/support") ? 'bg-rose-500/10 text-rose-400' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`}>
+              <Headphones className="h-4 w-4" /> Soporte TI
             </Link>
           </nav>
         </div>

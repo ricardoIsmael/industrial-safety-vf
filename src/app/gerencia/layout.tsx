@@ -19,7 +19,8 @@ import {
   X,
   FileText,
   UserCog,
-  GitBranch
+  GitBranch,
+  Headphones
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,7 @@ const gerenciaNavItems = [
   { href: "/gerencia/accesos", label: "Accesos / Ascensos", icon: UserCog },
   { href: "/gerencia/cambios", label: "Control de Cambios", icon: GitBranch },
   { href: "/gerencia/reports", label: "Reportes", icon: FileBarChart },
+  { href: "/gerencia/support", label: "Soporte TI", icon: Headphones },
   { href: "/gerencia/profile", label: "Mi Perfil", icon: User },
 ];
 
