@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Send, Headphones, MoreVertical, ChevronLeft, MessageSquare, Loader2, LifeBuoy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button";
 
 interface ChatMessage {
   id: string;
@@ -215,6 +216,7 @@ export default function JefeSupportPage() {
           mobileView === "chat" ? "hidden md:flex" : "flex"
         )}>
           <div className="p-4 border-b border-slate-800 space-y-4">
+            <ReportarIncidenteButton role="JEFE_SEGURIDAD" className="w-full" />
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
               <Input

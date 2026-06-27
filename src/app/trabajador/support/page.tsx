@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Send, Headphones, UserCircle, MoreVertical, ChevronLeft, MessageSquare, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button";
 
 interface ChatMessage {
   id: string;
@@ -210,6 +211,7 @@ export default function TrabajadorSupportPage() {
       )}>
         <div className="p-4 border-b border-border space-y-4">
           <h2 className="text-xl font-bold tracking-tight">Soporte</h2>
+          <ReportarIncidenteButton role="TRABAJADOR" className="w-full" />
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted" />
             <Input placeholder="Buscar..." className="pl-9 bg-surface-secondary/50 border-border"
