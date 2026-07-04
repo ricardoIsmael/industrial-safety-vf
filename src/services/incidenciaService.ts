@@ -39,6 +39,12 @@ export interface Incidencia {
     impacto: Nivel;
     urgencia: Nivel;
     prioridad: Prioridad;
+    // Clasificación asistida (reglas / IA)
+    categoriaOrigen: "IA" | "REGLA" | "HUMANO" | null;
+    requiereRevision: boolean | null;
+    iaConfianza: number | null;
+    iaDiagnostico: string | null;
+    contextoError: string | null;
     evidenciaUrls: string[];
     estado: EstadoIncidencia;
     atendidoPor: string | null;

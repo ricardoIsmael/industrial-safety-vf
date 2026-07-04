@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Loader2, X, CheckCircle2, PlayCircle, Paperclip, RefreshCw,
-    CloudUpload, ExternalLink, Inbox, Wrench, Zap, Activity,
+    CloudUpload, ExternalLink, Inbox, Wrench, Zap, Activity, Sparkles,
 } from "lucide-react";
 import { prioridadClasses } from "@/components/incidencias/reportar-incidente-button";
 import {
@@ -212,6 +212,16 @@ export default function SoporteIncidenciasPage() {
                                         <Badge variant="outline" className="border border-border text-muted">
                                             {categoriaLabels[inc.categoria] ?? inc.categoria}
                                         </Badge>
+                                        {inc.categoriaOrigen === "IA" && (
+                                            <Badge variant="outline" className="border border-purple-500/30 bg-purple-500/10 text-purple-400 gap-1">
+                                                <Sparkles className="h-3 w-3" /> IA
+                                            </Badge>
+                                        )}
+                                        {inc.requiereRevision && (
+                                            <Badge variant="outline" className="border border-amber-500/30 bg-amber-500/10 text-amber-500">
+                                                revisar
+                                            </Badge>
+                                        )}
                                         {inc.fuente === "EVENTO" && (
                                             <Badge variant="outline" className="border border-purple-500/30 bg-purple-500/10 text-purple-500 gap-1">
                                                 <Zap className="h-3 w-3" /> Evento
@@ -221,6 +231,19 @@ export default function SoporteIncidenciasPage() {
                                     </div>
                                     <h3 className="font-bold">{inc.titulo}</h3>
                                     <p className="text-sm text-muted line-clamp-2">{inc.descripcion}</p>
+                                    {inc.iaDiagnostico && (
+                                        <div className="mt-2 rounded-lg border border-purple-500/20 bg-purple-500/5 p-2.5">
+                                            <div className="flex items-center gap-1.5 text-xs font-medium text-purple-400">
+                                                <Sparkles className="h-3.5 w-3.5" /> Diagnóstico IA
+                                                {inc.iaConfianza != null && (
+                                                    <span className="ml-auto text-[10px] text-muted font-normal">
+                                                        confianza {Math.round(inc.iaConfianza * 100)}%
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-muted mt-1">{inc.iaDiagnostico}</p>
+                                        </div>
+                                    )}
                                     <p className="text-xs text-muted">
                                         {inc.tipo} · reportado por {inc.reporterName ?? "—"}
                                         {inc.reporterRole ? ` (${inc.reporterRole})` : ""}
