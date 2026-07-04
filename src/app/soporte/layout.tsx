@@ -3,22 +3,16 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ShieldCheck, Activity, Users, Video, Settings, GraduationCap, Menu, X, LogOut, Headphones, UserCog } from "lucide-react"
+import { Headphones, AlertTriangle, Menu, X, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "next-auth/react"
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: Activity },
-  { name: "Staff & Accesos", href: "/admin/staff", icon: Users },
-  { name: "Hardware", href: "/admin/hardware", icon: Video },
-  { name: "Integraciones", href: "/admin/settings", icon: Settings },
-  { name: "Asignar Cursos", href: "/admin/course-assignment", icon: GraduationCap },
-  { name: "Accesos", href: "/admin/accesos", icon: UserCog },
-  { name: "Soporte", href: "/admin/support", icon: Headphones },
+  { name: "Incidencias TI", href: "/soporte", icon: AlertTriangle },
 ]
 
-export default function AdminLayout({
+export default function SoporteLayout({
   children,
 }: {
   children: React.ReactNode
@@ -43,8 +37,8 @@ export default function AdminLayout({
       {/* Mobile Header */}
       <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-surface/50 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-6 h-6 text-primary" />
-          <span className="font-bold text-lg text-foreground">Admin Portal</span>
+          <Headphones className="w-6 h-6 text-primary" />
+          <span className="font-bold text-lg text-foreground">Soporte TI</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
           {sidebarOpen ? <X className="w-5 h-5 text-foreground" /> : <Menu className="w-5 h-5 text-foreground" />}
@@ -58,8 +52,8 @@ export default function AdminLayout({
       )}>
         {/* Brand */}
         <div className="hidden md:flex items-center gap-3 p-6 border-b border-border">
-          <ShieldCheck className="w-8 h-8 text-primary" />
-          <span className="font-bold text-xl text-foreground tracking-tight">Admin Portal</span>
+          <Headphones className="w-8 h-8 text-primary" />
+          <span className="font-bold text-xl text-foreground tracking-tight">Soporte TI</span>
         </div>
 
         {/* Navigation Links */}
@@ -72,8 +66,8 @@ export default function AdminLayout({
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors relative group",
-                  isActive 
-                    ? "bg-primary/10 text-primary" 
+                  isActive
+                    ? "bg-primary/10 text-primary"
                     : "text-muted hover:bg-surface-secondary hover:text-foreground"
                 )}
                 onClick={() => setSidebarOpen(false)}
@@ -88,10 +82,10 @@ export default function AdminLayout({
           })}
         </nav>
 
-        {/* User profile / Logout / Return to app */}
+        {/* Logout / Return to app */}
         <div className="p-4 border-t border-border space-y-2">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             className="w-full justify-start gap-2 text-danger hover:bg-danger/10 hover:text-danger"
             onClick={handleLogout}
           >
@@ -109,7 +103,7 @@ export default function AdminLayout({
 
       {/* Main Content Overlay for Mobile */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />

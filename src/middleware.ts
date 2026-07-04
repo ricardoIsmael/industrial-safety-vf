@@ -37,6 +37,7 @@ export default auth((req) => {
       roles.includes(role) || roles.includes(`ROLE_${role}`);
 
     const isAdmin        = hasRole("ADMINISTRADOR");
+    const isSoporte      = hasRole("SOPORTE");
     const isGerencia     = hasRole("GERENCIA_GENERAL");
     const isJefe         = hasRole("JEFE_SEGURIDAD");
     const isLogistica    = hasRole("LOGISTICA_ALMACEN");
@@ -46,6 +47,7 @@ export default auth((req) => {
 
     let targetDashboard = "/student";
     if (isAdmin)       targetDashboard = "/admin";
+    else if (isSoporte)    targetDashboard = "/soporte";
     else if (isGerencia)   targetDashboard = "/gerencia";
     else if (isJefe)       targetDashboard = "/jefatura";
     else if (isLogistica)  targetDashboard = "/logistica";
@@ -70,6 +72,7 @@ export default auth((req) => {
 
     // Protección de rutas por rol
     if (pathname.startsWith("/admin")      && !isAdmin)                    return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));
+    if (pathname.startsWith("/soporte")    && !isSoporte)                  return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));
     if (pathname.startsWith("/gerencia")   && !isGerencia   && !isAdmin)   return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));
     if (pathname.startsWith("/marketing")  && !isMarketing  && !isAdmin)   return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));
     if (pathname.startsWith("/instructor") && !isInstructor && !isAdmin)   return NextResponse.redirect(new URL(targetDashboard, req.nextUrl));

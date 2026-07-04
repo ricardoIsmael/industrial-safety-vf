@@ -73,6 +73,14 @@ const CATALOGO: Record<string, TipoIncidencia[]> = {
         { tipo: "Documentación o reporte normativo desactualizado", categoria: "DOCUMENTACION" },
         { tipo: "Otro", categoria: "OTROS" },
     ],
+    ADMINISTRADOR: [
+        { tipo: "No puedo gestionar usuarios o accesos", categoria: "APLICACIONES" },
+        { tipo: "Servicio/microservicio caído o no disponible", categoria: "INFRAESTRUCTURA" },
+        { tipo: "Error o inconsistencia en datos de la plataforma", categoria: "BASE_DATOS" },
+        { tipo: "Cámara o hardware de detección sin conexión", categoria: "INFRAESTRUCTURA" },
+        { tipo: "Problema de acceso o permisos", categoria: "SEGURIDAD" },
+        { tipo: "Otro", categoria: "OTROS" },
+    ],
 };
 
 export function tiposParaRol(role?: string | null): TipoIncidencia[] {

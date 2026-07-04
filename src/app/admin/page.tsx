@@ -6,6 +6,7 @@ import { Users, Activity, Video, GraduationCap, ShieldAlert, Shield, Database, L
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { ReportarIncidenteButton } from "@/components/incidencias/reportar-incidente-button"
 
 interface UserRow { role?: string }
 
@@ -91,9 +92,12 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Visión General del Sistema</h1>
-        <p className="text-muted">Métricas reales de la plataforma a partir de los microservicios.</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Visión General del Sistema</h1>
+          <p className="text-muted">Métricas reales de la plataforma a partir de los microservicios.</p>
+        </div>
+        <ReportarIncidenteButton role="ADMINISTRADOR" />
       </div>
 
       {/* KPI Cards */}

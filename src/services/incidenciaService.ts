@@ -53,12 +53,14 @@ export interface Incidencia {
 }
 
 export interface CrearIncidenciaPayload {
-    categoria: Categoria;
+    categoria?: Categoria;
     tipo?: string;
     titulo: string;
     descripcion: string;
-    impacto: Nivel;
-    urgencia: Nivel;
+    // Impacto/urgencia ya NO los define el usuario: los clasifica el servidor
+    // (reglas + IA). Se dejan opcionales por compatibilidad.
+    impacto?: Nivel;
+    urgencia?: Nivel;
     evidenciaUrls?: string[];
     reporterName?: string;
     reporterRole?: string;
