@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Loader2, X, CheckCircle2, PlayCircle, Paperclip, RefreshCw,
-    CloudUpload, ExternalLink, Inbox, Wrench,
+    CloudUpload, ExternalLink, Inbox, Wrench, Zap, Activity,
 } from "lucide-react";
 import { prioridadClasses } from "@/components/incidencias/reportar-incidente-button";
 import {
@@ -32,6 +32,7 @@ export default function SoporteIncidenciasPage() {
     const [todas, setTodas] = useState<Incidencia[]>([]);
     const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState<EstadoIncidencia | "">("");
+    const [vista, setVista] = useState<"todas" | "usuario" | "evento">("todas");
     const [processing, setProcessing] = useState<number | null>(null);
 
     // Modal de resolución
@@ -103,11 +104,23 @@ export default function SoporteIncidenciasPage() {
     };
 
     const cuenta = (estado: EstadoIncidencia) => todas.filter(i => i.estado === estado).length;
+    const eventosCount = todas.filter(i => i.fuente === "EVENTO").length;
     const stats = [
         { label: "Total", value: todas.length, icon: Inbox, cls: "text-primary" },
         { label: "Por atender", value: cuenta("REGISTRADO"), icon: AlertTriangle, cls: "text-orange-500" },
         { label: "En atención", value: cuenta("EN_ATENCION"), icon: Wrench, cls: "text-blue-500" },
-        { label: "Resueltas", value: cuenta("RESUELTO"), icon: CheckCircle2, cls: "text-emerald-500" },
+        { label: "Eventos (monitoreo)", value: eventosCount, icon: Zap, cls: "text-purple-500" },
+    ];
+
+    // Vista: todas / solo reportadas por usuarios / solo eventos de monitoreo
+    const visibles = vista === "todas"
+        ? items
+        : items.filter(i => vista === "evento" ? i.fuente === "EVENTO" : i.fuente !== "EVENTO");
+
+    const tabs: { id: typeof vista; label: string; icon: typeof Inbox }[] = [
+        { id: "todas", label: "Todas", icon: Inbox },
+        { id: "usuario", label: "Reportadas", icon: AlertTriangle },
+        { id: "evento", label: "Monitoreo", icon: Activity },
     ];
 
     return (
@@ -148,6 +161,30 @@ export default function SoporteIncidenciasPage() {
                 ))}
             </div>
 
+            {/* Control de vistas: separa incidentes reportados de eventos de monitoreo */}
+            <div className="flex items-center gap-1 rounded-lg border border-border bg-surface/50 p-1 w-fit">
+                {tabs.map(t => (
+                    <button
+                        key={t.id}
+                        onClick={() => setVista(t.id)}
+                        className={cn(
+                            "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                            vista === t.id ? "bg-primary/10 text-primary" : "text-muted hover:text-foreground"
+                        )}
+                    >
+                        <t.icon className="h-4 w-4" /> {t.label}
+                        {t.id === "evento" && eventosCount > 0 && (
+                            <span className="ml-1 rounded-full bg-purple-500/15 text-purple-500 px-1.5 text-[10px]">{eventosCount}</span>
+                        )}
+                    </button>
+                ))}
+            </div>
+            {vista === "evento" && (
+                <p className="text-xs text-muted">
+                    Incidencias generadas automáticamente por alarmas de CloudWatch (eventos que cruzaron su umbral).
+                </p>
+            )}
+
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             {/* Lista */}
@@ -155,11 +192,13 @@ export default function SoporteIncidenciasPage() {
                 <div className="flex items-center justify-center h-40 text-muted">
                     <Loader2 className="h-5 w-5 animate-spin mr-2" /> Cargando incidencias...
                 </div>
-            ) : items.length === 0 ? (
-                <Card className="p-10 text-center text-muted border-border">No hay incidencias.</Card>
+            ) : visibles.length === 0 ? (
+                <Card className="p-10 text-center text-muted border-border">
+                    {vista === "evento" ? "No hay eventos de monitoreo." : "No hay incidencias."}
+                </Card>
             ) : (
                 <div className="space-y-3">
-                    {items.map(inc => (
+                    {visibles.map(inc => (
                         <Card key={inc.id} className="p-4 border-border bg-surface/50">
                             <div className="flex items-start justify-between gap-4 flex-wrap">
                                 <div className="min-w-0 flex-1 space-y-1">
@@ -173,6 +212,11 @@ export default function SoporteIncidenciasPage() {
                                         <Badge variant="outline" className="border border-border text-muted">
                                             {categoriaLabels[inc.categoria] ?? inc.categoria}
                                         </Badge>
+                                        {inc.fuente === "EVENTO" && (
+                                            <Badge variant="outline" className="border border-purple-500/30 bg-purple-500/10 text-purple-500 gap-1">
+                                                <Zap className="h-3 w-3" /> Evento
+                                            </Badge>
+                                        )}
                                         <span className="text-xs text-muted">{inc.codigo}</span>
                                     </div>
                                     <h3 className="font-bold">{inc.titulo}</h3>
