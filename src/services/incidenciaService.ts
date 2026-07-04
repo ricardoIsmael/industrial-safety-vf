@@ -31,6 +31,7 @@ export interface Incidencia {
     reporterId: string;
     reporterName: string | null;
     reporterRole: string | null;
+    fuente: "USUARIO" | "EVENTO";
     categoria: Categoria;
     tipo: string | null;
     titulo: string;
