@@ -12,11 +12,9 @@ import {
 } from "lucide-react";
 import { tiposParaRol } from "@/features/incidencias/catalog";
 import {
-    calcularPrioridad, crearIncidencia, getMisIncidencias, subirEvidencia,
-    type Incidencia, type Nivel, type Prioridad,
+    crearIncidencia, getMisIncidencias, subirEvidencia,
+    type Incidencia, type Prioridad,
 } from "@/services/incidenciaService";
-
-const NIVELES: Nivel[] = ["ALTO", "MEDIO", "BAJO"];
 
 export const prioridadClasses: Record<Prioridad, string> = {
     CRITICA: "bg-red-500/15 text-red-500 border-red-500/30",
@@ -51,8 +49,6 @@ export function ReportarIncidenteButton({ role, className }: Props) {
     const [tipoIdx, setTipoIdx] = useState(0);
     const [titulo, setTitulo] = useState("");
     const [descripcion, setDescripcion] = useState("");
-    const [impacto, setImpacto] = useState<Nivel>("MEDIO");
-    const [urgencia, setUrgencia] = useState<Nivel>("MEDIO");
     const [files, setFiles] = useState<File[]>([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -62,11 +58,9 @@ export function ReportarIncidenteButton({ role, className }: Props) {
     const [mias, setMias] = useState<Incidencia[]>([]);
     const [loadingMias, setLoadingMias] = useState(false);
 
-    const prioridadPreview = calcularPrioridad(impacto, urgencia);
-
     const resetForm = () => {
         setTipoIdx(0); setTitulo(""); setDescripcion("");
-        setImpacto("MEDIO"); setUrgencia("MEDIO"); setFiles([]); setError(null);
+        setFiles([]); setError(null);
     };
 
     const cargarMias = async () => {
@@ -101,8 +95,6 @@ export function ReportarIncidenteButton({ role, className }: Props) {
                 tipo: seleccion.tipo,
                 titulo: titulo.trim(),
                 descripcion: descripcion.trim(),
-                impacto,
-                urgencia,
                 evidenciaUrls,
                 reporterName,
                 reporterRole: role,
@@ -191,27 +183,9 @@ export function ReportarIncidenteButton({ role, className }: Props) {
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-xs font-medium text-muted">Impacto</label>
-                                        <Select value={impacto} onChange={e => setImpacto(e.target.value as Nivel)}>
-                                            {NIVELES.map(n => <option key={n} value={n}>{n}</option>)}
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-medium text-muted">Urgencia</label>
-                                        <Select value={urgencia} onChange={e => setUrgencia(e.target.value as Nivel)}>
-                                            {NIVELES.map(n => <option key={n} value={n}>{n}</option>)}
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted">Prioridad calculada:</span>
-                                    <Badge variant="outline" className={cn("border", prioridadClasses[prioridadPreview])}>
-                                        {prioridadPreview}
-                                    </Badge>
-                                </div>
+                                <p className="text-[11px] text-muted">
+                                    El equipo de TI clasificará la prioridad de tu incidencia automáticamente.
+                                </p>
 
                                 <div>
                                     <label className="text-xs font-medium text-muted flex items-center gap-1">

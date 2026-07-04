@@ -9,7 +9,7 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Loader2, X, CheckCircle2, PlayCircle, Paperclip, RefreshCw,
-    CloudUpload, ExternalLink,
+    CloudUpload, ExternalLink, Inbox, Wrench,
 } from "lucide-react";
 import { prioridadClasses } from "@/components/incidencias/reportar-incidente-button";
 import {
@@ -24,11 +24,12 @@ const estadoMeta: Record<string, { label: string; cls: string }> = {
     CERRADO: { label: "Cerrado", cls: "bg-muted/20 text-muted border-border" },
 };
 
-export default function AdminIncidenciasPage() {
+export default function SoporteIncidenciasPage() {
     const { data: session } = useSession();
-    const adminId = session?.keycloakId as string | undefined;
+    const soporteId = session?.keycloakId as string | undefined;
 
     const [items, setItems] = useState<Incidencia[]>([]);
+    const [todas, setTodas] = useState<Incidencia[]>([]);
     const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState<EstadoIncidencia | "">("");
     const [processing, setProcessing] = useState<number | null>(null);
@@ -42,7 +43,9 @@ export default function AdminIncidenciasPage() {
     const cargar = async () => {
         setLoading(true);
         try {
-            setItems(await getAllIncidencias(filtro ? { estado: filtro } : undefined));
+            const lista = await getAllIncidencias(filtro ? { estado: filtro } : undefined);
+            setItems(lista);
+            setTodas(filtro ? await getAllIncidencias() : lista);
         } finally {
             setLoading(false);
         }
@@ -51,10 +54,10 @@ export default function AdminIncidenciasPage() {
     useEffect(() => { cargar(); /* eslint-disable-next-line */ }, [filtro]);
 
     const handleAceptar = async (id: number) => {
-        if (!adminId) return;
+        if (!soporteId) return;
         setProcessing(id);
         try {
-            await aceptarIncidencia(id, adminId);
+            await aceptarIncidencia(id, soporteId);
             await cargar();
         } catch (e) {
             setError(e instanceof Error ? e.message : "Error al aceptar");
@@ -64,11 +67,11 @@ export default function AdminIncidenciasPage() {
     };
 
     const handleSincronizar = async (id: number) => {
-        if (!adminId) return;
+        if (!soporteId) return;
         setProcessing(id);
         setError(null);
         try {
-            await sincronizarIncidencia(id, adminId);
+            await sincronizarIncidencia(id, soporteId);
             await cargar();
         } catch (e) {
             setError(e instanceof Error ? e.message : "Error al sincronizar");
@@ -79,12 +82,12 @@ export default function AdminIncidenciasPage() {
 
     const handleResolver = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!adminId || !resolviendo) return;
+        if (!soporteId || !resolviendo) return;
         if (!resolText.trim()) { setError("Describe cómo se solucionó"); return; }
         setProcessing(resolviendo.id);
         setError(null);
         try {
-            await resolverIncidencia(resolviendo.id, adminId, {
+            await resolverIncidencia(resolviendo.id, soporteId, {
                 resolucionDescripcion: resolText.trim(),
                 resueltoBien,
             });
@@ -99,6 +102,14 @@ export default function AdminIncidenciasPage() {
         }
     };
 
+    const cuenta = (estado: EstadoIncidencia) => todas.filter(i => i.estado === estado).length;
+    const stats = [
+        { label: "Total", value: todas.length, icon: Inbox, cls: "text-primary" },
+        { label: "Por atender", value: cuenta("REGISTRADO"), icon: AlertTriangle, cls: "text-orange-500" },
+        { label: "En atención", value: cuenta("EN_ATENCION"), icon: Wrench, cls: "text-blue-500" },
+        { label: "Resueltas", value: cuenta("RESUELTO"), icon: CheckCircle2, cls: "text-emerald-500" },
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header */}
@@ -107,7 +118,7 @@ export default function AdminIncidenciasPage() {
                     <AlertTriangle className="h-6 w-6 text-orange-500" />
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">Incidencias TI</h1>
-                        <p className="text-sm text-muted">Atención de incidentes por prioridad</p>
+                        <p className="text-sm text-muted">Mesa de ayuda — atención de incidentes por prioridad</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -122,6 +133,19 @@ export default function AdminIncidenciasPage() {
                         <RefreshCw className="h-4 w-4" />
                     </Button>
                 </div>
+            </div>
+
+            {/* Métricas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {stats.map(s => (
+                    <Card key={s.label} className="p-4 border-border bg-surface/50 flex items-center gap-3">
+                        <s.icon className={cn("h-6 w-6 shrink-0", s.cls)} />
+                        <div className="min-w-0">
+                            <p className="text-2xl font-bold leading-none">{s.value}</p>
+                            <p className="text-xs text-muted mt-1">{s.label}</p>
+                        </div>
+                    </Card>
+                ))}
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
@@ -188,7 +212,7 @@ export default function AdminIncidenciasPage() {
                                         </Button>
                                     )}
 
-                                    {/* Sincronización con Freshservice */}
+                                    {/* Sincronización con Jira */}
                                     {inc.syncEstado === "SINCRONIZADO" && inc.freshserviceUrl ? (
                                         <a href={inc.freshserviceUrl} target="_blank" rel="noopener noreferrer"
                                             className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
