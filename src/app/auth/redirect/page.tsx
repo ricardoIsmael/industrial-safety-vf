@@ -38,6 +38,9 @@ export default async function AuthRedirectPage() {
   if (roles.includes("LOGISTICA_ALMACEN") || roles.includes("ROLE_LOGISTICA_ALMACEN")) {
     redirect("/logistica");
   }
+  if (roles.includes("SOPORTE") || roles.includes("ROLE_SOPORTE")) {
+    redirect("/soporte");
+  }
 
   redirect("/student");
 }
