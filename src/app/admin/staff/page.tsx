@@ -54,6 +54,7 @@ export default function StaffAndAccessPage() {
     if (r.includes('MARKETING')) return { label: 'Marketing', class: 'text-pink-400 border-pink-400/30 bg-pink-400/10' }
     if (r.includes('TRABAJADOR')) return { label: 'Planta', class: 'text-cyan-400 border-cyan-400/30 bg-cyan-400/10' }
     if (r.includes('INSTRUCTOR')) return { label: 'Instructor', class: 'text-indigo-400 border-indigo-400/30 bg-indigo-400/10' }
+    if (r.includes('SOPORTE')) return { label: 'Soporte TI', class: 'text-emerald-400 border-emerald-400/30 bg-emerald-400/10' }
     return { label: 'Usuario', class: 'text-slate-400 border-slate-400/30 bg-slate-400/10' }
   }
 
@@ -194,6 +195,7 @@ export default function StaffAndAccessPage() {
         "Empleado de Planta": "ROLE_TRABAJADOR",
         "Jefe de Seguridad": "ROLE_JEFE_SEGURIDAD",
         "Instructor": "ROLE_INSTRUCTOR",
+        "Soporte TI": "ROLE_SOPORTE",
       }
 
       // Mapeo de rutas para el botón "Ir al Módulo"
@@ -205,6 +207,7 @@ export default function StaffAndAccessPage() {
         "Empleado de Planta": "/trabajador",
         "Jefe de Seguridad": "/jefatura",
         "Instructor": "/instructor",
+        "Soporte TI": "/soporte",
       }
 
       const payload = {
@@ -400,6 +403,7 @@ export default function StaffAndAccessPage() {
                     <option value="Empleado de Planta">Empleado de Planta</option>
                     <option value="Jefe de Seguridad">Jefe de Seguridad</option>
                     <option value="Instructor">Instructor</option>
+                    <option value="Soporte TI">Soporte TI</option>
                   </select>
                 </div>
                 {selectedArea === 'Empleado de Planta' && (
