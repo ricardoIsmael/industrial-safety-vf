@@ -3,13 +3,16 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Headphones, AlertTriangle, Menu, X, LogOut } from "lucide-react"
+import { Headphones, AlertTriangle, Activity, BookOpen, LayoutDashboard, Menu, X, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { signOut, useSession } from "next-auth/react"
 
 const navigation = [
-  { name: "Incidencias TI", href: "/soporte", icon: AlertTriangle },
+  { name: "Dashboard", href: "/soporte", icon: LayoutDashboard },
+  { name: "Incidencias TI", href: "/soporte/incidencias", icon: AlertTriangle },
+  { name: "Eventos", href: "/soporte/eventos", icon: Activity },
+  { name: "Base de Conocimiento", href: "/soporte/conocimiento", icon: BookOpen },
 ]
 
 export default function SoporteLayout({
