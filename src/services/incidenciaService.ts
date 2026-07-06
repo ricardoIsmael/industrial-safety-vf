@@ -55,6 +55,11 @@ export interface Incidencia {
     freshserviceTicketId: number | null;
     freshserviceUrl: string | null;
     syncEstado: SyncEstado;
+    // SLA de resolución (RTO de atención, curso S16/S31)
+    slaMinutos: number | null;
+    slaVencimiento: string | null;
+    slaCumplido: boolean | null;
+    demoraJustificacion: string | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -157,7 +162,7 @@ export async function aceptarIncidencia(id: number, adminId: string): Promise<In
 export async function resolverIncidencia(
     id: number,
     adminId: string,
-    body: { resolucionDescripcion: string; resueltoBien: boolean }
+    body: { resolucionDescripcion: string; resueltoBien: boolean; demoraJustificacion?: string }
 ): Promise<Incidencia> {
     const res = await fetch(`/api/proxy/incidencias/${id}/resolver`, {
         method: "PATCH",
