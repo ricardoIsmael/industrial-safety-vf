@@ -12,10 +12,10 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
-    BookOpen, Loader2, RefreshCw, Search, ArrowLeft, Eye, Plus, X, Clock, Tag,
+    BookOpen, Loader2, RefreshCw, Search, ArrowLeft, Eye, Plus, X, Clock, Tag, Pencil,
 } from "lucide-react";
 import {
-    abrirArticulo, crearArticulo, getArticulos, categoriaArticuloMeta,
+    abrirArticulo, actualizarArticulo, crearArticulo, getArticulos, categoriaArticuloMeta,
     type Articulo, type ArticuloResumen, type CategoriaArticulo,
 } from "@/services/conocimientoService";
 
@@ -64,12 +64,30 @@ export default function ConocimientoPage() {
     const [abierto, setAbierto] = useState<Articulo | null>(null);
     const [abriendo, setAbriendo] = useState<number | null>(null);
 
-    // Modal de nuevo artículo (soporte documenta soluciones → la KB crece)
+    // Modal de crear/editar artículo (soporte documenta y mantiene la KB)
     const [creando, setCreando] = useState(false);
+    const [editando, setEditando] = useState<Articulo | null>(null);
     const [guardando, setGuardando] = useState(false);
     const [nuevo, setNuevo] = useState({
         titulo: "", resumen: "", categoria: "RUNBOOK" as CategoriaArticulo, etiquetas: "", contenido: "",
     });
+
+    const abrirEdicion = (a: Articulo) => {
+        setNuevo({
+            titulo: a.titulo,
+            resumen: a.resumen ?? "",
+            categoria: a.categoria,
+            etiquetas: a.etiquetas ?? "",
+            contenido: a.contenido,
+        });
+        setEditando(a);
+    };
+
+    const cerrarModal = () => {
+        setCreando(false);
+        setEditando(null);
+        setNuevo({ titulo: "", resumen: "", categoria: "RUNBOOK", etiquetas: "", contenido: "" });
+    };
 
     const cargar = async () => {
         setLoading(true);
@@ -97,7 +115,7 @@ export default function ConocimientoPage() {
         }
     };
 
-    const handleCrear = async (e: React.FormEvent) => {
+    const handleGuardar = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!autorId) return;
         if (!nuevo.titulo.trim() || !nuevo.contenido.trim()) {
@@ -107,19 +125,24 @@ export default function ConocimientoPage() {
         setGuardando(true);
         setError(null);
         try {
-            await crearArticulo(autorId, {
+            const payload = {
                 titulo: nuevo.titulo.trim(),
                 resumen: nuevo.resumen.trim() || undefined,
                 categoria: nuevo.categoria,
                 etiquetas: nuevo.etiquetas.trim() || undefined,
                 contenido: nuevo.contenido,
                 autorNombre: (session?.user?.name as string) ?? undefined,
-            });
-            setCreando(false);
-            setNuevo({ titulo: "", resumen: "", categoria: "RUNBOOK", etiquetas: "", contenido: "" });
+            };
+            if (editando) {
+                const actualizado = await actualizarArticulo(editando.id, payload);
+                setAbierto(actualizado); // refresca la vista de lectura con los cambios
+            } else {
+                await crearArticulo(autorId, payload);
+            }
+            cerrarModal();
             await cargar();
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Error al crear el artículo");
+            setError(err instanceof Error ? err.message : "Error al guardar el artículo");
         } finally {
             setGuardando(false);
         }
@@ -131,14 +154,81 @@ export default function ConocimientoPage() {
         return m;
     }, [items]);
 
+    // ── Modal de crear/editar (compartido entre el listado y la vista de detalle) ──
+    const modalArticulo = (creando || editando) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+            <Card className="w-full max-w-2xl border-border bg-surface p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-bold">
+                        {editando ? `Editar ${editando.codigo}` : "Nuevo artículo"}
+                    </h2>
+                    <Button variant="ghost" size="icon" onClick={cerrarModal}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+                <form onSubmit={handleGuardar} className="space-y-3">
+                    <Input
+                        value={nuevo.titulo}
+                        onChange={e => setNuevo(n => ({ ...n, titulo: e.target.value }))}
+                        placeholder="Título (ej. Runbook: reiniciar el gateway)"
+                    />
+                    <div className="flex gap-2 flex-wrap">
+                        <Select
+                            value={nuevo.categoria}
+                            onChange={e => setNuevo(n => ({ ...n, categoria: e.target.value as CategoriaArticulo }))}
+                            className="w-64"
+                        >
+                            {CATEGORIAS.map(c => (
+                                <option key={c} value={c}>{categoriaArticuloMeta[c].label}</option>
+                            ))}
+                        </Select>
+                        <Input
+                            value={nuevo.etiquetas}
+                            onChange={e => setNuevo(n => ({ ...n, etiquetas: e.target.value }))}
+                            placeholder="Etiquetas separadas por coma"
+                            className="flex-1 min-w-40"
+                        />
+                    </div>
+                    <Input
+                        value={nuevo.resumen}
+                        onChange={e => setNuevo(n => ({ ...n, resumen: e.target.value }))}
+                        placeholder="Resumen corto para el listado (opcional)"
+                    />
+                    <Textarea
+                        value={nuevo.contenido}
+                        onChange={e => setNuevo(n => ({ ...n, contenido: e.target.value }))}
+                        placeholder={"Contenido en Markdown...\n\n## Título\n- lista\n\n| Col A | Col B |\n|---|---|\n| a | b |"}
+                        rows={12}
+                        className="font-mono text-xs"
+                    />
+                    {error && <p className="text-sm text-red-500">{error}</p>}
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" variant="outline" className="border-border" onClick={cerrarModal}>
+                            Cancelar
+                        </Button>
+                        <Button type="submit" disabled={guardando} className="gap-2">
+                            {guardando && <Loader2 className="h-4 w-4 animate-spin" />}
+                            {editando ? "Guardar cambios" : "Publicar"}
+                        </Button>
+                    </div>
+                </form>
+            </Card>
+        </div>
+    );
+
     // ── Vista de detalle ─────────────────────────────────────────────────────────
     if (abierto) {
         const meta = categoriaArticuloMeta[abierto.categoria];
         return (
             <div className="space-y-4 animate-in fade-in duration-300">
-                <Button variant="outline" className="border-border gap-2" onClick={() => setAbierto(null)}>
-                    <ArrowLeft className="h-4 w-4" /> Volver a la base de conocimiento
-                </Button>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <Button variant="outline" className="border-border gap-2" onClick={() => setAbierto(null)}>
+                        <ArrowLeft className="h-4 w-4" /> Volver a la base de conocimiento
+                    </Button>
+                    <Button variant="outline" className="border-border gap-2" onClick={() => abrirEdicion(abierto)}>
+                        <Pencil className="h-4 w-4" /> Editar artículo
+                    </Button>
+                </div>
                 <Card className="p-6 border-border bg-surface/50">
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                         <Badge variant="outline" className={cn("border", meta.cls)}>{meta.label}</Badge>
@@ -169,6 +259,7 @@ export default function ConocimientoPage() {
                         </div>
                     )}
                 </Card>
+                {modalArticulo}
             </div>
         );
     }
@@ -282,63 +373,7 @@ export default function ConocimientoPage() {
                 </div>
             )}
 
-            {/* Modal: nuevo artículo */}
-            {creando && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-                    <Card className="w-full max-w-2xl border-border bg-surface p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-bold">Nuevo artículo</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setCreando(false)}>
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                        <form onSubmit={handleCrear} className="space-y-3">
-                            <Input
-                                value={nuevo.titulo}
-                                onChange={e => setNuevo(n => ({ ...n, titulo: e.target.value }))}
-                                placeholder="Título (ej. Runbook: reiniciar el gateway)"
-                            />
-                            <div className="flex gap-2 flex-wrap">
-                                <Select
-                                    value={nuevo.categoria}
-                                    onChange={e => setNuevo(n => ({ ...n, categoria: e.target.value as CategoriaArticulo }))}
-                                    className="w-64"
-                                >
-                                    {CATEGORIAS.map(c => (
-                                        <option key={c} value={c}>{categoriaArticuloMeta[c].label}</option>
-                                    ))}
-                                </Select>
-                                <Input
-                                    value={nuevo.etiquetas}
-                                    onChange={e => setNuevo(n => ({ ...n, etiquetas: e.target.value }))}
-                                    placeholder="Etiquetas separadas por coma"
-                                    className="flex-1 min-w-40"
-                                />
-                            </div>
-                            <Input
-                                value={nuevo.resumen}
-                                onChange={e => setNuevo(n => ({ ...n, resumen: e.target.value }))}
-                                placeholder="Resumen corto para el listado (opcional)"
-                            />
-                            <Textarea
-                                value={nuevo.contenido}
-                                onChange={e => setNuevo(n => ({ ...n, contenido: e.target.value }))}
-                                placeholder={"Contenido en Markdown...\n\n## Título\n- lista\n\n| Col A | Col B |\n|---|---|\n| a | b |"}
-                                rows={12}
-                                className="font-mono text-xs"
-                            />
-                            <div className="flex justify-end gap-2">
-                                <Button type="button" variant="outline" className="border-border" onClick={() => setCreando(false)}>
-                                    Cancelar
-                                </Button>
-                                <Button type="submit" disabled={guardando} className="gap-2">
-                                    {guardando && <Loader2 className="h-4 w-4 animate-spin" />} Publicar
-                                </Button>
-                            </div>
-                        </form>
-                    </Card>
-                </div>
-            )}
+            {modalArticulo}
         </div>
     );
 }
