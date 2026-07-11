@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { prioridadClasses } from "@/components/incidencias/reportar-incidente-button";
 import { formatDuracion, slaEstado } from "@/features/incidencias/sla";
+import { registrarIncidenciaPasada } from "@/services/conocimientoService";
 import {
     aceptarIncidencia, getAllIncidencias, resolverIncidencia, sincronizarIncidencia,
     categoriaLabels, type EstadoIncidencia, type Incidencia,
@@ -142,11 +143,32 @@ export default function SoporteIncidenciasPage() {
         setProcessing(resolviendo.id);
         setError(null);
         try {
-            await resolverIncidencia(resolviendo.id, soporteId, {
+            const resuelta = await resolverIncidencia(resolviendo.id, soporteId, {
                 resolucionDescripcion: resolText.trim(),
                 resueltoBien,
                 ...(fueraDeSla ? { demoraJustificacion: demoraText.trim() } : {}),
             });
+            try {
+                await registrarIncidenciaPasada({
+                    autorId: soporteId,
+                    autorNombre: session?.user?.name ?? "Soporte TI",
+                    codigo: resuelta.codigo,
+                    titulo: resuelta.titulo,
+                    descripcion: resuelta.descripcion,
+                    categoria: categoriaLabels[resuelta.categoria] ?? resuelta.categoria,
+                    tipo: resuelta.tipo,
+                    prioridad: resuelta.prioridad,
+                    resolucionDescripcion: resolText.trim(),
+                    resueltoBien,
+                    reporterName: resuelta.reporterName,
+                    slaCumplido: resuelta.slaCumplido,
+                    createdAt: resuelta.createdAt,
+                    resueltoEn: resuelta.resueltoEn ?? new Date().toISOString(),
+                });
+            } catch {
+                // Si falla el registro en KB no bloqueamos la resolucion
+                setError("Incidencia resuelta, pero no se pudo registrar en la base de conocimiento");
+            }
             setResolviendo(null);
             setResolText("");
             setDemoraText("");
