@@ -8,6 +8,7 @@ export type CategoriaArticulo =
     | "RESPALDOS"
     | "EVENTOS"
     | "INCIDENCIAS"
+    | "INCIDENTES_PASADOS"
     | "RUNBOOK";
 
 export const categoriaArticuloMeta: Record<CategoriaArticulo, { label: string; cls: string }> = {
@@ -16,6 +17,7 @@ export const categoriaArticuloMeta: Record<CategoriaArticulo, { label: string; c
     RESPALDOS: { label: "Respaldos", cls: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30" },
     EVENTOS: { label: "Monitoreo y eventos", cls: "bg-amber-500/15 text-amber-500 border-amber-500/30" },
     INCIDENCIAS: { label: "Gestión de incidencias", cls: "bg-orange-500/15 text-orange-500 border-orange-500/30" },
+    INCIDENTES_PASADOS: { label: "Incidentes pasados", cls: "bg-rose-500/15 text-rose-500 border-rose-500/30" },
     RUNBOOK: { label: "Runbooks / procedimientos", cls: "bg-purple-500/15 text-purple-500 border-purple-500/30" },
 };
 
@@ -99,4 +101,60 @@ export async function actualizarArticulo(
         body: JSON.stringify(payload),
     });
     return parseOrThrow<Articulo>(res);
+}
+
+/**
+ * Registra una incidencia TI ya resuelta como articulo en la base de conocimiento
+ * dentro de la seccion "Incidentes pasados". Se invoca automaticamente al resolver.
+ */
+export async function registrarIncidenciaPasada(opts: {
+    autorId: string;
+    autorNombre: string;
+    codigo: string;
+    titulo: string;
+    descripcion: string;
+    categoria: string;
+    tipo: string | null;
+    prioridad: string;
+    resolucionDescripcion: string;
+    resueltoBien: boolean;
+    reporterName: string | null;
+    slaCumplido: boolean | null;
+    createdAt: string;
+    resueltoEn: string;
+}): Promise<Articulo> {
+    const contenido = [
+        `## Datos de la incidencia`,
+        ``,
+        `| Campo | Valor |`,
+        `|---|---|`,
+        `| **Codigo** | ${opts.codigo} |`,
+        `| **Titulo** | ${opts.titulo} |`,
+        `| **Categoria** | ${opts.categoria} |`,
+        `| **Tipo** | ${opts.tipo ?? "—"} |`,
+        `| **Prioridad** | ${opts.prioridad} |`,
+        `| **Reportado por** | ${opts.reporterName ?? "—"} |`,
+        `| **SLA cumplido** | ${opts.slaCumplido === null ? "—" : opts.slaCumplido ? "Si" : "No"} |`,
+        `| **Reportada** | ${opts.createdAt} |`,
+        `| **Resuelta** | ${opts.resueltoEn} |`,
+        ``,
+        `### Descripcion`,
+        ``,
+        opts.descripcion,
+        ``,
+        `### Resolucion`,
+        ``,
+        opts.resolucionDescripcion,
+        ``,
+        `**Resultado:** ${opts.resueltoBien ? "Resuelto correctamente" : "Cerrado sin exito"}`,
+    ].join("\n");
+
+    return crearArticulo(opts.autorId, {
+        titulo: `Incidencia ${opts.codigo} — ${opts.titulo}`,
+        resumen: `${opts.categoria} · ${opts.prioridad} · ${opts.resueltoBien ? "Resuelto" : "Cerrado sin exito"}`,
+        categoria: "INCIDENTES_PASADOS",
+        etiquetas: [opts.categoria, opts.tipo, opts.prioridad.toLowerCase()].filter(Boolean).join(", "),
+        contenido,
+        autorNombre: opts.autorNombre,
+    });
 }
